@@ -21,7 +21,7 @@ class Rest_Search_By_URL implements Feature {
 	 * Boot the feature.
 	 */
 	public function boot(): void {
-		add_filter( 'rest_post_search_query', [ $this, 'add_url_search_support' ], 10, 2 );
+		add_filter( 'rest_post_search_query', $this->add_url_search_support( ... ), 10, 2 );
 	}
 
 	/**
@@ -36,7 +36,7 @@ class Rest_Search_By_URL implements Feature {
 	 * @param WP_REST_Request $request    The request used.
 	 * @return mixed[] Filtered query arguments.
 	 */
-	public function add_url_search_support( $query_args, $request ) {
+	public function add_url_search_support( $query_args, $request ): array {
 		$search = $request->get_param( 'search' );
 
 		if ( empty( $search ) || ! is_string( $search ) ) {
@@ -80,7 +80,7 @@ class Rest_Search_By_URL implements Feature {
 
 		// WP_Query ignores `post__not_in` when `post__in` is set, so honor `exclude` here.
 		if ( ! empty( $query_args['post__not_in'] ) && is_array( $query_args['post__not_in'] ) ) {
-			$excluded_ids = array_map( 'intval', array_filter( $query_args['post__not_in'], 'is_numeric' ) );
+			$excluded_ids = array_map( intval( ... ), array_filter( $query_args['post__not_in'], is_numeric( ... ) ) );
 
 			if ( in_array( $post_id, $excluded_ids, true ) ) {
 				$query_args['post__in']    = [ 0 ];

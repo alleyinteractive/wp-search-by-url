@@ -9,6 +9,7 @@
 declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
+use Rector\TypeDeclaration\Rector\ClassMethod\StrictArrayParamDimFetchRector;
 
 return RectorConfig::configure()
 	->withParallel()
@@ -54,4 +55,9 @@ return RectorConfig::configure()
 	 *
 	 * @link https://getrector.com/documentation/ignoring-rules-or-paths
 	 */
-	->withSkip( [] );
+	->withSkip(
+		[
+			// Conflicts with Alley.PHP.FilterCallbackTypehint, which forbids typehints on filter callback parameters.
+			StrictArrayParamDimFetchRector::class => [ __DIR__ . '/src/features/class-rest-search-by-url.php' ],
+		]
+	);
