@@ -92,15 +92,12 @@ class Rest_Search_By_URL implements Feature {
 
 		// Respect an existing `include` constraint: only keep the resolved post if it was already allowed.
 		if ( ! empty( $query_args['post__in'] ) && is_array( $query_args['post__in'] ) ) {
-			$allowed_ids = [];
-			foreach ( $query_args['post__in'] as $allowed_id ) {
-				if ( is_numeric( $allowed_id ) ) {
-					$allowed_ids[] = (int) $allowed_id;
-				}
-			}
-
-			// An empty `post__in` is ignored by WP_Query, so use 0 to force no results.
-			$query_args['post__in'] = in_array( $post_id, $allowed_ids, true ) ? [ $post_id ] : [ 0 ];
+			// An empty `post__in` is ignored by WP_Query, so default to 0 to force no results.
+			$query_args['post__in'] = array_reduce(
+				$query_args['post__in'],
+				fn ( array $post_in, mixed $id ): array => 0 === $post_in[0] && is_numeric( $id ) && (int) $id === $post_id ? [ $post_id ] : $post_in,
+				[ 0 ]
+			);
 		} else {
 			$query_args['post__in'] = [ $post_id ];
 		}
