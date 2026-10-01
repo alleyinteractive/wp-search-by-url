@@ -55,6 +55,9 @@ class Rest_Search_By_URL implements Feature {
 			return $query_args;
 		}
 
+		// `url_to_postid()` is uncached and matches against every rewrite rule, so it
+		// is costly on sites with many rules. VIP's cached wrapper is preferred when
+		// available. This only runs when the search term is an absolute URL.
 		$resolved = function_exists( 'wpcom_vip_url_to_postid' )
 			? wpcom_vip_url_to_postid( $search )
 			: url_to_postid( $search ); // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.url_to_postid_url_to_postid
@@ -75,6 +78,18 @@ class Rest_Search_By_URL implements Feature {
 
 		unset( $query_args['s'] );
 
+		// WP_Query ignores `post__not_in` when `post__in` is set, so honor `exclude` here.
+		if ( ! empty( $query_args['post__not_in'] ) && is_array( $query_args['post__not_in'] ) ) {
+			$excluded_ids = array_map( 'intval', array_filter( $query_args['post__not_in'], 'is_numeric' ) );
+
+			if ( in_array( $post_id, $excluded_ids, true ) ) {
+				$query_args['post__in']    = [ 0 ];
+				$query_args['post_status'] = 'publish';
+
+				return $query_args;
+			}
+		}
+
 		// Respect an existing `include` constraint: only keep the resolved post if it was already allowed.
 		if ( ! empty( $query_args['post__in'] ) && is_array( $query_args['post__in'] ) ) {
 			$allowed_ids = [];
@@ -90,6 +105,8 @@ class Rest_Search_By_URL implements Feature {
 			$query_args['post__in'] = [ $post_id ];
 		}
 
+		// Deliberately published-only, even for users who could normally see other
+		// statuses, so a pasted URL can never expose an unpublished post.
 		$query_args['post_status'] = 'publish';
 
 		return $query_args;

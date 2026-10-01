@@ -6,7 +6,7 @@
  * Version: 0.0.0
  * Author: Jessica Goddard
  * Author URI: https://github.com/alleyinteractive/wp-search-by-url
- * Requires at least: 7.1
+ * Requires at least: 6.5
  * Requires PHP: 8.2
  * Tested up to: 7.1
  *
@@ -21,11 +21,6 @@ namespace Alley\WP\Search_By_URL;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-
-/**
- * Root directory to this plugin.
- */
-define( 'WP_SEARCH_BY_URL_DIR', __DIR__ );
 
 // Check if Composer is installed (remove if Composer is not required for your plugin).
 if ( ! file_exists( __DIR__ . '/vendor/wordpress-autoload.php' ) ) {

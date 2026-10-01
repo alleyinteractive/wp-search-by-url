@@ -37,4 +37,6 @@ Run a single test: `vendor/bin/phpunit --filter RestSearchByUrlTest` (or a speci
 - Tests extend `tests/TestCase.php` (Mantle Testkit `Test_Case` with `Prevent_Remote_Requests`) and live in `tests/Feature/`. PSR-4: `Alley\WP\Search_By_URL\Tests\` → `tests/`. `tests/bootstrap.php` rsyncs the plugin into a WordPress install before booting.
 - Prefer [Mantle](https://mantle.alley.com/) APIs (testing helpers, factories, `mantle-framework/support`) over custom code; check `https://mantle.alley.com/llms.txt` to find the right one.
 - Keep the plugin slug `wp-search-by-url`, the author, and the namespace as they are.
-- Releases: `composer release` (create-release); GitHub Actions builds the tagged branches.
+- Default branch is `develop`. CI (`all-pr-tests.yml`) runs lint and PHPUnit on PHP 8.2–8.5 across a WordPress matrix, so don't use syntax or APIs newer than PHP 8.2.
+- Releases: `composer release` (create-release); `built-release.yml` builds and tags the release branch.
+- `composer.lock` and `vendor/` are gitignored.

@@ -118,6 +118,66 @@ class RestSearchByUrlTest extends TestCase {
 	}
 
 	/**
+	 * Test that the `wp_search_by_url_url_to_post_id` filter can supply the post ID.
+	 */
+	public function test_url_to_post_id_filter_can_resolve_url(): void {
+		$post = static::factory()->post->create_and_get();
+
+		add_filter(
+			'wp_search_by_url_url_to_post_id',
+			fn ( $post_id, $url ) => 'https://example.com/custom-route/' === $url ? $post->ID : $post_id,
+			10,
+			2
+		);
+
+		$this->get_json( '/wp-json/wp/v2/search?' . http_build_query( [ 'search' => 'https://example.com/custom-route/' ] ) )
+			->assertOk()
+			->assertJsonCount( 1 )
+			->assertJsonPath( '0.id', $post->ID );
+	}
+
+	/**
+	 * Test that the `exclude` parameter still removes a post found by URL.
+	 */
+	public function test_url_search_respects_exclude_constraint(): void {
+		$post = static::factory()->post->create_and_get();
+
+		$this->get_json( '/wp-json/wp/v2/search?' . http_build_query( [
+			'search'  => get_permalink( $post ),
+			'exclude' => [ $post->ID ], // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude
+		] ) )
+			->assertOk()
+			->assertJsonCount( 0 );
+	}
+
+	/**
+	 * Test that non-http(s) schemes are not treated as URLs.
+	 */
+	public function test_non_http_scheme_is_not_resolved(): void {
+		$post = static::factory()->post->create_and_get();
+
+		$url = preg_replace( '/^https?/i', 'ftp', get_permalink( $post ) );
+
+		$this->get_json( '/wp-json/wp/v2/search?' . http_build_query( [ 'search' => $url ] ) )
+			->assertOk()
+			->assertJsonCount( 0 );
+	}
+
+	/**
+	 * Test that a URL for a post of another type is not returned when searching a different subtype.
+	 */
+	public function test_url_for_other_post_type_is_not_returned(): void {
+		$page = static::factory()->post->create_and_get( [ 'post_type' => 'page' ] );
+
+		$this->get_json( '/wp-json/wp/v2/search?' . http_build_query( [
+			'search'  => get_permalink( $page ),
+			'subtype' => 'post',
+		] ) )
+			->assertOk()
+			->assertJsonCount( 0 );
+	}
+
+	/**
 	 * Test that a plain text search still works as before.
 	 */
 	public function test_text_search_still_works(): void {

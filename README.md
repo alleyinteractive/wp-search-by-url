@@ -6,9 +6,9 @@ Tags: alleyinteractive, wp-search-by-url
 
 Stable tag: 0.0.0
 
-Requires at least: 6.3
+Requires at least: 6.5
 
-Tested up to: 6.7
+Tested up to: 7.1
 
 Requires PHP: 8.2
 
