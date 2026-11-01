@@ -8,7 +8,7 @@
  * Author URI: https://github.com/alleyinteractive/wp-search-by-url
  * Requires at least: 6.5
  * Requires PHP: 8.2
- * Tested up to: 7.1
+ * Tested up to: 7.1.4
  *
  * Text Domain: wp-search-by-url
  * Domain Path: /languages/
